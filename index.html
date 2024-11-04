@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Cadastro e Login com Firebase</title>
+    <!-- Firebase SDKs Compatíveis -->
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <h1>Sistema de Cadastro e Login</h1>
+
+    <!-- Formulário de Cadastro -->
+    <h2>Cadastro</h2>
+    <form id="registerForm">
+        <input type="email" id="registerEmail" placeholder="Email"><br>
+        <input type="password" id="registerPassword" placeholder="Senha"><br>
+        <input type="text" id="registerName" placeholder="Nome"><br>
+        <button type="button" onclick="registerUser()">Cadastrar</button>
+    </form>
+
+    <!-- Formulário de Login -->
+    <h2>Login</h2>
+    <form id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email"><br>
+        <input type="password" id="loginPassword" placeholder="Senha"><br>
+        <button type="button" onclick="loginUser()">Entrar</button>
+    </form>
+
+    <!-- Mensagem de Boas-vindas -->
+    <h2 id="welcomeMessage"></h2>
+
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBanoiCrthH1-drvwHLDUM2s-mPBlEW3Yg",
+            authDomain: "indexeddb-6d93d.firebaseapp.com",
+            projectId: "indexeddb-6d93d",
+            storageBucket: "indexeddb-6d93d.firebasestorage.app",
+            messagingSenderId: "442440895445",
+            appId: "1:442440895445:web:7f06c3401adc601e874b5c",
+            measurementId: "G-Z39L3YVENP"
+        };
+
+        // Inicializa o Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Função para cadastrar usuário
+        function registerUser() {
+            const email = document.getElementById("registerEmail").value;
+            const password = document.getElementById("registerPassword").value;
+            const name = document.getElementById("registerName").value;
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Usuário criado
+                    const user = userCredential.user;
+                    // Armazena informações adicionais no Firestore
+                    return db.collection("users").doc(user.uid).set({
+                        email: email,
+                        nome: name,
+                    });
+                })
+                .then(() => {
+                    alert("Cadastro realizado com sucesso!");
+                    document.getElementById("registerForm").reset();
+                })
+                .catch((error) => {
+                    console.error("Erro ao cadastrar usuário: ", error);
+                    alert(error.message);
+                });
+        }
+
+        // Função para login do usuário
+        function loginUser() {
+            const email = document.getElementById("loginEmail").value;
+            const password = document.getElementById("loginPassword").value;
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Login bem-sucedido
+                    const user = userCredential.user;
+                    document.getElementById("welcomeMessage").textContent = "Bem-vindo, " + user.email + "!";
+                    alert("Login realizado com sucesso!");
+                    document.getElementById("loginForm").reset();
+                })
+                .catch((error) => {
+                    console.error("Erro ao fazer login: ", error);
+                    alert(error.message);
+                });
+        }
+    </script>
+</body>
+</html>
